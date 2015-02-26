@@ -62,6 +62,7 @@ static DLAVAlertViewTheme *defaultTheme = nil;
 		_shadowOpacity = 0.5;
 		_shadowRadius = 20.0;
 		_shadowOffset = CGSizeMake(0.0, 0.0);
+        _hideTextFieldLine = false;
 		
 		_textFieldTheme = [[DLAVAlertViewTextFieldTheme alloc] init];
 		
@@ -137,7 +138,8 @@ static DLAVAlertViewTheme *defaultTheme = nil;
 		copy.shadowOpacity = self.shadowOpacity;
 		copy.shadowRadius = self.shadowRadius;
 		copy.shadowOffset = self.shadowOffset;
-		
+        copy.hideTextFieldLine = self.hideTextFieldLine;
+        
 		copy.textFieldTheme = [self.textFieldTheme copy];
 		
 		copy.primaryButtonTheme = [self.primaryButtonTheme copy];

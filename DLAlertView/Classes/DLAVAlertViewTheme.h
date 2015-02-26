@@ -58,6 +58,7 @@ DLAVTextControlMargins DLAVTextControlMarginsMake(CGFloat top, CGFloat bottom, C
 @property (readwrite, assign, nonatomic) CGFloat shadowOpacity;
 @property (readwrite, assign, nonatomic) CGFloat shadowRadius;
 @property (readwrite, assign, nonatomic) CGSize shadowOffset;
+@property (readwrite, assign, nonatomic) BOOL hideTextFieldLine;
 
 @property (readwrite, copy, nonatomic) DLAVAlertViewTextFieldTheme *textFieldTheme;
 
