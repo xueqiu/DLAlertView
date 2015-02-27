@@ -38,6 +38,7 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 @property (readwrite, strong, nonatomic) NSMutableArray *textfields;
 @property (readwrite, strong, nonatomic) NSMutableArray *buttons;
 @property (readwrite, strong, nonatomic) NSMutableArray *lines;
+@property (readwrite, strong, nonatomic) NSMutableArray *lineTypes ; //indicating the button line or textfield line
 
 @property (readwrite, strong, nonatomic) NSMutableArray *textFieldThemes;
 @property (readwrite, strong, nonatomic) NSMutableArray *buttonThemes;
@@ -54,6 +55,11 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 
 @end
 
+typedef enum {
+    BUTTON_LINE = 0,
+    TEXTFIELD_LINE = 1,
+} lineType ;
+
 @implementation DLAVAlertView
 
 #pragma mark - Initialization
@@ -69,6 +75,7 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 		_textfields = [NSMutableArray array];
 		_buttons = [NSMutableArray array];
 		_lines = [NSMutableArray array];
+        _lineTypes = [NSMutableArray array];
 		
 		_theme = [DLAVAlertViewTheme defaultTheme];
 		_textFieldThemes = [NSMutableArray array];
@@ -206,10 +213,10 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 	
 	// Add line:
 	UIView *line = [[self class] line];
-	line.backgroundColor = self.theme.lineColor;
+    line.backgroundColor = (self.theme.hideTextFieldLine ? [UIColor clearColor] :self.theme.lineColor);
 	[self.clippingView addSubview:line];
 	[self.lines insertObject:line atIndex:self.textfields.count];
-	
+    [self.lineTypes insertObject:[NSNumber numberWithInt:TEXTFIELD_LINE] atIndex:self.textfields.count];
 	// Add default textfield theme placeholder:
 	[self.textFieldThemes addObject:[NSNull null]];
 	
@@ -307,7 +314,7 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 	line.backgroundColor = self.theme.lineColor;
 	[self.clippingView addSubview:line];
 	[self.lines addObject:line];
-	
+    [self.lineTypes addObject:[NSNumber numberWithInt:BUTTON_LINE]];
 	// Add default button theme placeholder:
 	[self.buttonThemes addObject:[NSNull null]];
 	
@@ -397,6 +404,7 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 		UIView *line = self.lines[0];
 		[line removeFromSuperview];
 		[self.lines removeObjectAtIndex:0];
+        [self.lineTypes removeObjectAtIndex:0];
 		[textfield removeFromSuperview];
 	}
 	
@@ -573,7 +581,11 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 		self.messageLabel.textAlignment = (NSTextAlignment)theme.messageAlignment;
 		self.messageLabel.lineBreakMode = (NSLineBreakMode)theme.messageLineBreakMode;
 		[self.lines enumerateObjectsUsingBlock:^(UIView *line, NSUInteger index, BOOL *stop) {
-			line.backgroundColor = theme.lineColor;
+            if ([self.lineTypes[index] intValue] == BUTTON_LINE || !self.theme.hideTextFieldLine) {
+                line.backgroundColor = theme.lineColor;
+            } else {
+                line.backgroundColor = [UIColor clearColor];
+            }
 		}];
 		[self.textfields enumerateObjectsUsingBlock:^(UITextField *textfield, NSUInteger index, BOOL *stop) {
 			DLAVAlertViewTextFieldTheme *textFieldTheme = [self themeForTextFieldAtIndex:index];
@@ -1212,6 +1224,9 @@ static const CGFloat DLAVAlertViewAnimationDuration = 0.3;
 	
 	// Message height:
 	if (self.message) {
+        if (!self.title) {
+            theme.messageMargins = DLAVTextControlMarginsMake(theme.titleMargins.top, theme.messageMargins.bottom, theme.messageMargins.left, theme.messageMargins.right);
+        }
 		DLAVTextControlMargins messageMargins = theme.messageMargins;
 		height += messageMargins.top + [self messageHeight] + messageMargins.bottom;
 	}
